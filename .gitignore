@@ -1,0 +1,4 @@
+audios/*
+!audios/__init__
+
+.DS_Store
