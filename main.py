@@ -3,7 +3,7 @@ import json
 import time
 
 def download_by_url(url_need_download):
-	url = 'https://srv10.y2mate.is/listFormats?url=' + url_need_download
+	url = 'https://srv11.y2mate.is/listFormats?url=' + url_need_download
 
 	payload={}
 	headers = {
@@ -45,11 +45,38 @@ def download_by_url(url_need_download):
 					print('converting, sleep 1s and continue')
 					time.sleep(1)
 
-with open('list_link.txt', 'r') as f:
-	list_link = f.read().split('\n')
+def find_string_by_from_end(str_data, str_from, str_end):
+	from_index = str_data.find(str_from)
+	if from_index > 0:
+		end_index = str_data.find(str_end, from_index)
 
+		if end_index > 0:
+			return str_data[from_index:end_index]
 
-for link in list_link:
+	return ''
+
+with open('link_playlist.txt', 'r') as f:
+	url = f.read()
+
+payload={}
+headers = {
+  'Cookie': 'GPS=1; VISITOR_INFO1_LIVE=u6WG0FlH32U; YSC=5svkkAU85F8'
+}
+
+response = requests.request("GET", url, headers=headers, data=payload)
+text_html = response.text
+	
+find_from = '{"responseContext":{"serviceTrackingParams":'
+find_end = ';</script>'
+
+data_web = find_string_by_from_end(text_html, find_from, find_end)
+data_json = json.loads(data_web)
+
+data = data_json['contents']['twoColumnBrowseResultsRenderer']['tabs'][0]['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0]['playlistVideoListRenderer']['contents']
+
+for item in data:
+	link = 'https://www.youtube.com/watch?v=' + item['playlistVideoRenderer']['videoId']
+
 	print(link)
 	download_by_url(link)
 
